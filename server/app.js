@@ -1,14 +1,20 @@
-const { Block, generateNextBlock, getBlockchain } = require('./blockchain');
 const express = require('express');
 const bodyParser = require('body-parser')
 require('dotenv').config();
-// const {connectToPeers, getSockets, initP2PServer} from './p2p';
+const { connectToPeers, getSockets, initP2PServer } = require('./p2p');
+const { Block, generateNextBlock, getBlockchain } = require('./blockchain');
 const httpPort = parseInt(process.env.HTTP_PORT) || 3001;
 const p2pPort = parseInt(process.env.P2P_PORT) || 6001;
 console.log(process.env.HTTP_PORT);
 console.log(process.env.P2P_PORT);
 const initHttpServer = (myHttpPort) => {
     const app = express();
+    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json());
+    app.use(bodyParser.urlencoded({
+        extended: true
+    }));
+
     app.use(bodyParser.json());
 
     app.get('/blocks', (req, res) => {
@@ -31,4 +37,4 @@ const initHttpServer = (myHttpPort) => {
     });
 };
 initHttpServer(httpPort);
-// initP2PServer(p2pPort);
+initP2PServer(p2pPort);
