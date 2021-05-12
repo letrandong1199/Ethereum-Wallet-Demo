@@ -15,7 +15,7 @@ class UnspentTxOut {
     }
 }
 
-class TxIn {
+class TxIn {    
     constructor(txOutId, txOutIndex, signature) {
         this.txOutId = txOutId;
         this.txOutIndex = txOutIndex;
