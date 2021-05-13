@@ -1,5 +1,8 @@
 import React from 'react'
-const Home=()=>{
-    return <React.Fragment></React.Fragment>
+import Header from '../../parts/containers/Header/Header';
+const Home = () => {
+    return <React.Fragment>
+        <Header />
+    </React.Fragment>
 }
 export default Home;
