@@ -32,12 +32,12 @@ const Header = () => {
           <Grid container justify="center" alignItems="center">
             <Grid item xs={6}>
               <Link to="/create-wallet" className={classes.link}>
-                <Button variant="outlined" size="medium" className={classes.root} >New Wallet</Button>
+                <Button variant="outlined" className={classes.root} >New Wallet</Button>
               </Link>
             </Grid>
             <Grid item xs={6}>
               <Link to="/access-wallet" className={classes.link}>
-                <Button variant="outlined" size="medium" className={classes.root}>Access Wallet</Button>
+                <Button variant="outlined" className={classes.root}>Access Wallet</Button>
               </Link>
             </Grid>
           </Grid>

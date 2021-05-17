@@ -22,6 +22,17 @@ const useStyles = makeStyles(() => ({
             textDecoration: "underline",
             color: "#05c05a"
         }
+    },
+    btnGenerate: {
+        position: 'absolute',
+        bottom: '10px',
+        width: '100%',
+        borderColor: '#05a05c',
+        color: '#05a05c',
+        "&:hover": {
+            backgroundColor: "#05a05c",
+            color: '#fff'
+        }
     }
 }))
 export default useStyles;

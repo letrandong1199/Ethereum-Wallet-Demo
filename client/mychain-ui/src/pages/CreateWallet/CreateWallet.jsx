@@ -15,9 +15,9 @@ const CreateWallet = () => {
                     </h5>
                 </div>
                 <div>
-                    <div style={{ margin: '0 auto', width: '400px', height: '400px', backgroundColor: '#fff' }}>
+                    <div style={{ margin: '0 auto', width: '400px', height: '400px', backgroundColor: '#fff',position:'relative' }}>
                         <Typography style={{ textAlign: 'center', backgroundColor: '#434f61', color: '#fff', padding: '6px 18px', borderRadius: '10px 10px 0 0' }}>By Private Key</Typography>
-                        <Button variant="filled" color="primary" style={{ margin: '0 auto' }}>Generate Private Key</Button>
+                        <Button variant="outlined" className={classes.btnGenerate}>Create Private Key</Button>
                     </div>
                 </div>
             </Paper>

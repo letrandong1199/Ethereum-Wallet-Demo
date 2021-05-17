@@ -9,11 +9,9 @@ const useStyles = makeStyles(() => ({
         borderRadius: "0px"
     },
     root: {
-        padding: '6px 12px',
-        backgroundColor: '#fff',
         borderColor: '#05c0a5',
         color: '#05c0a5',
-        '& :hover': {
+        '&:hover': {
             backgroundColor: '#05c0a5',
             color: '#fff',
         },
