@@ -6,6 +6,7 @@ import CreateWallet from "./pages/CreateWallet/CreateWallet";
 import DashBoard from "./pages/Dashboard/Dashboard";
 import Mine from "./pages/Mine/Mine";
 import Send from "./pages/Send/Send";
+import Statistic from "./pages/Statistic/Statistic";
 import { SocketContext, socket } from "./context/socket";
 import AccessWallet from "./pages/AccesWallet/AccessWallet";
 
@@ -14,6 +15,7 @@ const App = () => {
     <SocketContext.Provider value={socket}>
       <Router>
         <Switch>
+          <Route path="/statistic" component={Statistic} />
           <Route path="/send" component={Send} />
           <Route path="/mine" component={Mine} />
           <Route path="/dashboard" component={DashBoard} />

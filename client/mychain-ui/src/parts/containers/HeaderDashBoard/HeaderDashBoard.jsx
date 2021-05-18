@@ -1,18 +1,18 @@
 import React, { useContext } from "react";
 import { Paper, Grid, Button, Typography } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
-// import { SocketContext } from "../../../context/socket";
+import { SocketContext } from "../../../context/socket";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { Link } from "react-router-dom";
 import useStyles from "./style";
 
 const HeaderDashBoard = () => {
-  // const socket = useContext(SocketContext);
+  const socket = useContext(SocketContext);
   const history = useHistory();
   const handleLogout = (e) => {
     localStorage.clear();
     history.push("/");
-    // socket.emit("log_disconnect");
+    socket.emit("log_disconnect");
   };
 
   const classes = useStyles();
@@ -48,7 +48,7 @@ const HeaderDashBoard = () => {
           </Link>
         </Grid>
         <Grid item xs={2}>
-          <Link to="#" className={classes.link}>
+          <Link to="/statistic" className={classes.link}>
             Block and Transaction
           </Link>
         </Grid>
