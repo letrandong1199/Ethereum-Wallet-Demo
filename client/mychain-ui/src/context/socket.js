@@ -13,7 +13,7 @@ export const socket = socketio.connect(`${SERVER_IP}:8000`, {
 socket.on("sync_data", (data) => {
   localStorage.setItem("data", data);
   fetch("http://localhost:3000/updatedata/", {
-    method: "post",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
     },

@@ -53,7 +53,7 @@ const HeaderDashBoard = () => {
           </Link>
         </Grid>
         <Grid item xs={2}>
-          <Link to="#" className={classes.link}>
+          <Link to="/mine" className={classes.link}>
             Mine
           </Link>
         </Grid>
