@@ -1,28 +1,159 @@
+const Block = require("./block");
 const CryptoJS = require("crypto-js");
-const { broadcastLatest } = require("./p2p");
-const { hexToBinary } = require('./util');
+const Transaction = require("./transaction");
+const { result } = require("lodash");
 //Define block
-class Block {
-    constructor(index, hash, previousHash, timestamp, data, difficulty, nonce) {
-        this.index = index;
-        this.hash = hash.toString();
-        this.previousHash = previousHash.toString();
-        this.timestamp = timestamp;
-        this.data = data;
-        this.difficulty = difficulty;
-        this.nonce = nonce;
+class Blockchain {
+  constructor() {
+    this.chain = [this.createGenesisBlock()];
+    this.difficulty = 2;
+    this.pendingTransactions = [];
+    this.miningReward = 100;
+  }
+
+  createGenesisBlock() {
+    return new Block(Date.parse("2017-01-01"), [], "0");
+  }
+  getLatestBlock() {
+    return this.chain[this.chain.length - 1];
+  }
+  minePendingTransactions(miningRewardAddress) {
+    if (this.pendingTransactions.length > 0) {
+      const rewardTx = new Transaction(
+        null,
+        miningRewardAddress,
+        this.miningReward
+      );
+      this.pendingTransactions.push(rewardTx);
+
+      const block = new Block(
+        Date.now(),
+        this.pendingTransactions,
+        this.getLatestBlock().hash
+      );
+      block.mineBlock(this.difficulty);
+
+      console.log("Block successfully mined!");
+      this.chain.push(block);
+
+      this.pendingTransactions = [];
+
+      return true;
     }
+  }
+  addTransaction(transaction) {
+    if (!transaction.fromAddress || !transaction.toAddress) {
+      throw new Error("Transaction must include from and to address");
+    }
+
+    if (!transaction.isValid()) {
+      throw new Error("Cannot add invalid transaction to chain");
+    }
+
+    if (transaction.amount <= 0) {
+      throw new Error("Transaction amount should be higher than 0");
+    }
+
+    // if (
+    //   this.getBalanceOfAddress(transaction.fromAddress) < transaction.amount
+    // ) {
+    //   throw new Error("Not enough balance");
+    // }
+
+    this.pendingTransactions.push(transaction);
+    console.log("transaction added: %s", transaction);
+  }
+  getBalanceOfAddress(address) {
+    let balance = 0;
+
+    for (const block of this.chain) {
+      for (const trans of block.transactions) {
+        if (trans.fromAddress === address) {
+          balance -= trans.amount;
+        }
+
+        if (trans.toAddress === address) {
+          balance += trans.amount;
+        }
+      }
+    }
+    // console.log("getBalanceOfAddrees: %s", balance);
+    return balance;
+  }
+
+  getAllTransactionsForWallet(address) {
+    const txs = [];
+
+    for (const block of this.chain) {
+      for (const tx of block.transactions) {
+        if (tx.fromAddress === address || tx.toAddress === address) {
+          txs.push(tx);
+        }
+      }
+    }
+
+    // console.log('get transactions for wallet count: %s', txs.length);
+    return txs;
+  }
+
+  getAllTransactions() {
+    const txs = [];
+
+    for (const block of this.chain) {
+      for (const tx of block.transactions) {
+        txs.push(tx);
+      }
+    }
+    return txs;
+  }
+
+  getAllBlocks() {
+    const blocks = [];
+
+    for (const block of this.chain) {
+      blocks.push(block);
+    }
+    return blocks;
+  }
+
+  isChainValid() {
+    const realGenesis = JSON.stringify(this.createGenesisBlock());
+
+    if (realGenesis !== JSON.stringify(this.chain[0])) {
+      return false;
+    }
+
+    for (let i = 1; i < this.chain.length; i++) {
+      const currentBlock = this.chain[i];
+
+      if (!currentBlock.hasValidTransactions()) {
+        return false;
+      }
+
+      if (currentBlock.hash !== currentBlock.calculateHash()) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }
+module.exports = Blockchain;
 // Generate first index of chain
+/*
 const genesisBlock = () => {
-    const newBlock = new Block(0, "816534932c2b7154836da6afc367695e6337db8a921823784c14378abed4f7d7", 0, Date.UTC(new Date().getDate()), 100000, 0, 0);
+    const newBlock = new Block(0, "816534932c2b7154836da6afc367695e6337db8a921823784c14378abed4f7d7", 0, Date.UTC(new Date().getTime()), [], 0, 0);
     return newBlock;
 }
 //Hash of block
 const calculateHash = (index, previousHash, timestamp, data, difficulty, nonce) => {
     return CryptoJS.SHA256(index + previousHash + timestamp + data + difficulty + nonce).toString();
 }
+
 let blockchain = [genesisBlock()];
+
+let unspentTxOuts = [];
+
 //get chain[]
 const getBlockchain = () => {
     return blockchain;
@@ -70,10 +201,11 @@ const getCurrentTimestamp = () => Math.round(new Date().getTime() / 1000);
 //         blockchain.push(newBlock);
 //     }
 // }
-// Valid block present with previous block 
+// Valid block present with previous block
 const isValidNewBlock = (newBlock, previousBlock) => {
     if (!isValidBlockStructure(newBlock)) {
         console.log('invalid structure');
+        console.log('newBlock............:', newBlock);
         return false;
     }
     if (previousBlock.index + 1 !== newBlock.index) {
@@ -128,7 +260,7 @@ const hashMatchesBlockContent = (block) => {
 
 const hashMatchesDifficulty = (hash, difficulty) => {
     const hashInBinary = hexToBinary(hash);
-    console.log(`hashInBinary: ${hashInBinary}`);
+    // console.log(`hashInBinary: ${hashInBinary}`);
     const requiredPrefix = '0'.repeat(difficulty);
     return hashInBinary.startsWith(requiredPrefix);
 };
@@ -157,7 +289,7 @@ const isValidBlockStructure = (block) => {
         && typeof block.hash == 'string'
         && typeof block.previousHash == 'string'
         && typeof block.timestamp == 'number'
-        && typeof block.data == 'string');
+        && typeof block.data == 'object');
 
     console.log(flag);
     return flag;
@@ -171,9 +303,13 @@ const generateNextBlock = (blockData) => {
     const nextTimestamp = getCurrentTimestamp();
     // const nextHash = calculateHash(nextIndex, previousBlock.hash, nextTimestamp, blockData);
     const newBlock = findBlock(nextIndex, previousBlock.hash, nextTimestamp, blockData, difficulty);
-    addBlock(newBlock);
-    broadcastLatest();
-    return newBlock;
+    if (addBlockToChain(new Block)) {
+        broadcastLatest();
+        return newBlock;
+    } else {
+        return null;
+    }
+
 }
 
 const findBlock = (index, previousHash, timestamp, data, difficulty) => {
@@ -200,8 +336,15 @@ const addBlock = (newBlock) => {
 
 const addBlockToChain = (newBlock) => {
     if (isValidNewBlock(newBlock, getLastestBlock())) {
-        blockchain.push(newBlock);
-        return true;
+        const retVal = processTransactions(newBlock.data, unspentTxOuts, newBlock.index)
+        if (retVal === null) {
+            return false;
+        }
+        else {
+            blockchain.push(newBlock);
+            unspentTxOuts = retVal;
+            return true;
+        }
     }
     return false;
 };
@@ -215,4 +358,4 @@ const replaceChain = (newBlocks) => {
         console.log('Received blockchain invalid');
     }
 };
-module.exports = { Block, getBlockchain, getLastestBlock, generateNextBlock, isValidBlockStructure, replaceChain, addBlockToChain };
+module.exports = { Block, getBlockchain, getLastestBlock, generateNextBlock, isValidBlockStructure, replaceChain, addBlockToChain };*/

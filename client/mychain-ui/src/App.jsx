@@ -1,19 +1,25 @@
-import React from "react"
-import { BrowserRouter, Route, Switch } from "react-router-dom"
-import './App.css';
-import Home from "./pages/Home/Home"
-import CreateWallet from "./pages/CreateWallet/CreateWallet"
+import React from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import "./App.css";
+import Home from "./pages/Home/Home";
+import CreateWallet from "./pages/CreateWallet/CreateWallet";
+import DashBoard from "./pages/Dashboard/Dashboard";
+import { SocketContext, socket } from "./context/socket";
+import AccessWallet from "./pages/AccesWallet/AccessWallet";
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Switch>
-        <Route path="/create-wallet" component={CreateWallet} />
-        <Route path="/" component={Home} />
-
-      </Switch>
-    </BrowserRouter>
-  )
-}
+    <SocketContext.Provider value={socket}>
+      <Router>
+        <Switch>
+          <Route path="/dashboard" component={DashBoard} />
+          <Route path="/access-wallet" component={AccessWallet} />
+          <Route path="/create-wallet" component={CreateWallet} />
+          <Route path="/" exact component={Home} />
+        </Switch>
+      </Router>
+    </SocketContext.Provider>
+  );
+};
 
 export default App;
