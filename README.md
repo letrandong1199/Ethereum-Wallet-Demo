@@ -27,4 +27,6 @@
     </ul>
   </li>
 </ul>
-  
+<h1>Tài liệu tham khảo</h1>
+<p>https://github.com/Savjee/SavjeeCoin</p>
+<p>https://lhartikk.github.io/</p>
